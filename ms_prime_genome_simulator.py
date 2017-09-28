@@ -36,17 +36,27 @@ from random import choice
 tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=5e3,
     recombination_rate=2e-8, mutation_rate=2e-8)
 
-#for variant in tree_sequence.variants(): # variants are essentially SNPs
-#    print(variant.index, variant.position, variant.genotypes, sep='\t')
-firstSNP = next(tree_sequence.variants()).genotypes
-print(firstSNP)
+
+# Transform msprime population sample from list of individual values for each
+# SNP site to list of SNPS for each individual.
+SNPSample = []
+for variant in tree_sequence.variants(): # variants are essentially SNPs
+    SNPSample.append(variant.genotypes.tolist())
+
+genomeSample = [list(individual) for individual in zip(*SNPSample)]
+genomeSample = [g[:10] for g in genomeSample]
+
+
 # Simple pedigree
-a = Individual(genome=[firstSNP[0],firstSNP[1]])
-b = Individual(genome=[firstSNP[2],firstSNP[3]])
+a = Individual(genome=[genomeSample[0],genomeSample[1]])
+b = Individual(genome=[genomeSample[2],genomeSample[3]])
 c = Individual(mother=a, father=b)
 
 c.inherit()
-print(a.genome, b.genome, c.genome)
+print("Genome A:", a.genome)
+print("Genome B:", b.genome)
+print("Genome C:", c.genome)
+
 # TODO:
 # Single SNP, Single family
 # 10 SNPs, single family simulation with crossover
