@@ -3,6 +3,9 @@ from pprint import pprint
 import numpy
 from pedigree import Individual
 from random import choice
+import pandas as pd
+import os
+
 # Simulate to n=100 individuals
 
 # Example usage:
@@ -57,6 +60,14 @@ print("Genome A:", a.genome)
 print("Genome B:", b.genome)
 print("Genome C:", c.genome)
 
+
+# Read in 51 person Amish subpedigree.
+with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as f:
+    pedigree = pd.read_csv(f)
+
+missing = pedigree.query("MOTHER not in ID or FATHER not in ID")
+top_of_pedigree = missing['ID'].tolist()
+print(top_of_pedigree)
 # TODO:
 # Single SNP, Single family
 # 10 SNPs, single family simulation with crossover

@@ -4,8 +4,9 @@ from random import choice
 
 class Individual():
 
-    def __init__(self, mother=None, father=None, children=[], sex=None,
+    def __init__(self, ID=None, mother=None, father=None, children=[], sex=None,
                  genome=[[],[]]):
+        self.id = ID
         self.mother = mother
         self.father = father
         self.children = children
