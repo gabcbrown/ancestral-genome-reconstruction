@@ -1,6 +1,7 @@
 # TODO:
 # More crossover points
 from random import choice
+from copy import deepcopy
 
 class Individual():
 
@@ -18,8 +19,8 @@ class Individual():
         paternal = self._meiosis(self.father.genome[0], self.father.genome[1])
         self.genome = [maternal, paternal]
 
-    # Takes two homologous chromosomes (hc) and simulates meiosis. Returns a single
-    # gamete chromosome. Simulates 1 crossover point.
+    # Takes two homologous chromosomes (hc) and simulates meiosis. Returns a
+    # single gamete chromosome. Simulates 1 crossover point.
     def _meiosis(self, hc1, hc2):
         # Randomly chooses an index to crossover at.
         crossoverPoint = choice(range(0,len(hc1)))
@@ -28,7 +29,8 @@ class Individual():
         # - each homologous chromosome duplicates itself into two identical
         #   sister chromatids (sc).
         # - One sister chromatid from each homologous chromosome cross over.
-        sc1a, sc1b, sc2a, sc2b = hc1, hc1, hc2, hc2 # TODO: make sure this doesn't break
+        sc1a, sc1b = deepcopy(hc1), deepcopy(hc1)
+        sc2a, sc2b = deepcopy(hc2), deepcopy(hc2)
         new_sc1a = sc1a[:crossoverPoint] + sc2a[crossoverPoint:]
         new_sc2a = sc2a[:crossoverPoint] + sc1a[crossoverPoint:]
 
