@@ -47,9 +47,9 @@ for variant in tree_sequence.variants(): # variants are essentially SNPs
     SNPSample.append(variant.genotypes.tolist())
 
 genomeSample = [list(individual) for individual in zip(*SNPSample)]
-genomeSample = [g[:10] for g in genomeSample]
+genomeSample = [g[:10] for g in genomeSample] # Limit the genome size to 10 SNPs
 
-
+'''
 # Simple pedigree
 a = Individual(genome=[genomeSample[0],genomeSample[1]])
 b = Individual(genome=[genomeSample[2],genomeSample[3]])
@@ -58,8 +58,7 @@ c = Individual(mother=a, father=b)
 c.inherit()
 print("Genome A:", a.genome)
 print("Genome B:", b.genome)
-print("Genome C:", c.genome)
-
+print("Genome C:", c.genome)'''
 
 # Read in 51 person Amish subpedigree.
 with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as f:
@@ -68,9 +67,25 @@ with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as 
 missing = pedigree.query("MOTHER not in ID or FATHER not in ID")
 top_of_pedigree = missing['ID'].tolist()
 print(top_of_pedigree)
+
+counter = 0
+for i in top_of_pedigree:
+    # Create the missing parents, then inherit
+    ID1 = "A" + str(counter)
+    ID2 = "A" + str(counter + 1)
+    counter += 2
+
+    mother = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
+                        sex=0, id=ID1)
+    father = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
+                        sex=1, id=ID2)
+    child = Individual(id=i, mother=mother, father=father) #TODO: add sex
+    child.inherit()
+    print(mother.id, mother.genome)
+    print(father.id, father.genome)
+    print(child.id, child.genome)
+    print('\n')
+
 # TODO:
-# Single SNP, Single family
-# 10 SNPs, single family simulation with crossover
-# Larger pedigree
-# Simulate mutation? Not clear if it will be on the SNPs, recombination more important
-# 50 core members first
+# Simulate the parents of individuals at the top of the tree.s
+# Add mutation.

@@ -5,9 +5,9 @@ from copy import deepcopy
 
 class Individual():
 
-    def __init__(self, ID=None, mother=None, father=None, children=[], sex=None,
+    def __init__(self, id=None, mother=None, father=None, children=[], sex=None,
                  genome=[[],[]]):
-        self.id = ID
+        self.id = id # TODO: Is this name bad?
         self.mother = mother
         self.father = father
         self.children = children
