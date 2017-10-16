@@ -1,8 +1,9 @@
 import msprime
 from pprint import pprint
 import numpy
-from pedigree import Individual
+from pedigree import Individual, Pedigree
 from random import choice
+import csv
 import pandas as pd
 import os
 
@@ -62,30 +63,45 @@ print("Genome C:", c.genome)'''
 
 # Read in 51 person Amish subpedigree.
 with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as f:
-    pedigree = pd.read_csv(f)
+    data = pd.read_csv(f)
 
-missing = pedigree.query("MOTHER not in ID or FATHER not in ID")
-top_of_pedigree = missing['ID'].tolist()
-print(top_of_pedigree)
+# Construct the pedigree
+pedigree = Pedigree()
+
+# Find missing ancestors and replace them with new Individual IDs
+mother_missing = data.query("MOTHER not in ID")
+father_missing = data.query("FATHER not in ID")
 
 counter = 0
-for i in top_of_pedigree:
-    # Create the missing parents, then inherit
-    ID1 = "A" + str(counter)
-    ID2 = "A" + str(counter + 1)
-    counter += 2
-
+for i in mother_missing['ID'].tolist():
+    motherID = "A" + str(counter)
+    counter += 1
     mother = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
-                        sex=0, id=ID1)
+                        sex=1, id=motherID, children=[i])
+    pedigree.add_member(mother, ancestor=True)
+    data.loc[data["ID"] == i, 'MOTHER'] = motherID
+
+for i in father_missing['ID'].tolist():
+    fatherID = "A" + str(counter)
+    counter += 1
     father = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
-                        sex=1, id=ID2)
-    child = Individual(id=i, mother=mother, father=father) #TODO: add sex
-    child.inherit()
-    print(mother.id, mother.genome)
-    print(father.id, father.genome)
-    print(child.id, child.genome)
-    print('\n')
+                        sex=0, id=fatherID, children=[i])
+    pedigree.add_member(father, ancestor=True)
+    data.loc[data["ID"] == i, 'FATHER'] = fatherID
+
+# Add known individuals to the pedigree
+for row in data.itertuples():
+    ID, father, mother, sex = row[1:5]
+    member = Individual(id=ID, mother=mother, father=father, sex=sex)
+    if mother in pedigree.ancestors or father in pedigree.ancestors:
+        pedigree.add_member(member, root=True)
+    else:
+        pedigree.add_member(member)
+
+print("Ancestors:", len(pedigree.ancestors))
+print("Roots:", len(pedigree.roots))
+print("All members:", len(pedigree.members))
 
 # TODO:
-# Simulate the parents of individuals at the top of the tree.s
+# Inherit down the tree
 # Add mutation.

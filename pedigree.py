@@ -39,3 +39,28 @@ class Individual():
         #   divides.
         # - the sister chromatids separate and the cells divide into 4 gametes.
         return choice([new_sc1a, sc1b, new_sc2a, sc2b])
+
+class Pedigree():
+
+    def __init__(self):
+        self.members = {}
+        self.roots = {}
+        self.ancestors = {}
+
+    def add_member(self, new_member, root=False, ancestor=False):
+        self.members[new_member.id] = new_member
+        if root == True:
+            self.roots[new_member.id] = new_member
+        elif ancestor == True:
+            self.ancestors[new_member.id] = new_member
+
+    def get_member(self, id):
+        try:
+            return self.members[id]
+        except:
+            return None
+
+    def has_member(self, id):
+        if id in self.members:
+            return True
+        return False
