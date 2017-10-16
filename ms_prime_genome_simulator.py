@@ -77,7 +77,7 @@ for i in mother_missing['ID'].tolist():
     motherID = "A" + str(counter)
     counter += 1
     mother = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
-                        sex=1, id=motherID, children=[i])
+                        sex=2, id=motherID, children=[i])
     pedigree.add_member(mother, ancestor=True)
     data.loc[data["ID"] == i, 'MOTHER'] = motherID
 
@@ -85,14 +85,31 @@ for i in father_missing['ID'].tolist():
     fatherID = "A" + str(counter)
     counter += 1
     father = Individual(genome=[genomeSample.pop(), genomeSample.pop()],
-                        sex=0, id=fatherID, children=[i])
+                        sex=1, id=fatherID, children=[i])
     pedigree.add_member(father, ancestor=True)
     data.loc[data["ID"] == i, 'FATHER'] = fatherID
 
 # Add known individuals to the pedigree
+print(data)
 for row in data.itertuples():
     ID, father, mother, sex = row[1:5]
-    member = Individual(id=ID, mother=mother, father=father, sex=sex)
+
+    # TODO: This makes me mad
+    children = []
+    for foo in data.itertuples():
+        c, f, m = foo[1:4]
+        if f == ID or m == ID:
+            children.append(c)
+
+    '''if sex == 2:
+        children = data.loc[data["MOTHER"] == i, 'ID'].tolist()
+    elif sex == 1:
+        children = data.loc[data["FATHER"] == i, 'ID'].tolist()
+    '''
+
+    member = Individual(id=ID, mother=mother, father=father, children=children,
+                        sex=sex)
+
     if mother in pedigree.ancestors or father in pedigree.ancestors:
         pedigree.add_member(member, root=True)
     else:
@@ -101,6 +118,8 @@ for row in data.itertuples():
 print("Ancestors:", len(pedigree.ancestors))
 print("Roots:", len(pedigree.roots))
 print("All members:", len(pedigree.members))
+
+pedigree.draw_structure()
 
 # TODO:
 # Inherit down the tree
