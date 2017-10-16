@@ -92,7 +92,7 @@ for i in father_missing['ID'].tolist():
 # Add known individuals to the pedigree
 print(data)
 for row in data.itertuples():
-    ID, father, mother, sex = row[1:5]
+    ID, fatherID, motherID, sex = row[1:5]
 
     # TODO: This makes me mad
     children = []
@@ -107,19 +107,28 @@ for row in data.itertuples():
         children = data.loc[data["FATHER"] == i, 'ID'].tolist()
     '''
 
-    member = Individual(id=ID, mother=mother, father=father, children=children,
+    member = Individual(id=ID, mother=motherID,
+                        father=fatherID,
+                        children=children,
                         sex=sex)
 
-    if mother in pedigree.ancestors or father in pedigree.ancestors:
+    if motherID in pedigree.ancestors or fatherID in pedigree.ancestors:
         pedigree.add_member(member, root=True)
     else:
         pedigree.add_member(member)
 
+
+# Check that everything is running smoothly
 print("Ancestors:", len(pedigree.ancestors))
 print("Roots:", len(pedigree.roots))
 print("All members:", len(pedigree.members))
-
 pedigree.draw_structure()
+
+# Inherit down the tree
+pedigree.inherit()
+
+for m in pedigree.members:
+    print(pedigree.members[m].genome)
 
 # TODO:
 # Inherit down the tree
