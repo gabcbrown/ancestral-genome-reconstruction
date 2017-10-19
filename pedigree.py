@@ -1,7 +1,8 @@
 # TODO:
 # More crossover points
-from random import choice
+from random import choice, uniform
 from copy import deepcopy
+import graphviz as gv
 
 class Individual():
 
@@ -14,9 +15,12 @@ class Individual():
         self.sex = sex
         self.genome = genome
 
-    def inherit(self):
-        maternal = self._meiosis(self.mother.genome[0], self.mother.genome[1])
-        paternal = self._meiosis(self.father.genome[0], self.father.genome[1])
+    def inherit(self, m, f):
+        # FIXME
+        #maternal = self._meiosis(self.mother.genome[0], self.mother.genome[1])
+        maternal = self._meiosis(m.genome[0], m.genome[1])
+        #paternal = self._meiosis(self.father.genome[0], self.father.genome[1])
+        paternal = self._meiosis(f.genome[0], f.genome[1])
         self.genome = [maternal, paternal]
 
     # Takes two homologous chromosomes (hc) and simulates meiosis. Returns a
@@ -33,12 +37,22 @@ class Individual():
         sc2a, sc2b = deepcopy(hc2), deepcopy(hc2)
         new_sc1a = sc1a[:crossoverPoint] + sc2a[crossoverPoint:]
         new_sc2a = sc2a[:crossoverPoint] + sc1a[crossoverPoint:]
+        gametes = [new_sc1a, sc1b, new_sc2a, sc2b]
+
+        # Simulate mutation in the duplication TODO: Ways to improve this?
+        # Mutation method inspired by http://wjidea.github.io/2016/popSim.html
+        mutation_rate = 0.0005 # between 10e-3 and 10e-4
+        for g in gametes:
+            if uniform(0,1.0) < mutation_rate: # Mutation!
+                print("Mutation!")
+                mutation_locus = choice(range(0,len(g)))
+                g[mutation_locus] = 0 if g[mutation_locus] == 1 else 1
 
         # Simulate Meiosis II with
         # - the now crossed-over homologous chromosomes separate and the cell
         #   divides.
         # - the sister chromatids separate and the cells divide into 4 gametes.
-        return choice([new_sc1a, sc1b, new_sc2a, sc2b])
+        return choice(gametes)
 
 class Pedigree():
 
@@ -64,3 +78,27 @@ class Pedigree():
         if id in self.members:
             return True
         return False
+
+    def inherit(self):
+        children = []
+        for a in self.ancestors:
+            children += self.ancestors[a].children
+
+        while len(children) > 0:
+            c_id = children.pop(0)
+            c = self.members[c_id]
+            c.inherit(self.members[c.mother], self.members[c.father])
+            children += c.children
+
+
+    def draw_structure(self, snp=None):
+        # A nice tutorial on gv: http://matthiaseisen.com/articles/graphviz/
+        g = gv.Digraph('pedigree')
+        for i in self.members:
+            g.node(str(i)) #Otherwise it throws an error
+        for i in self.members:
+            for c in self.members[i].children:
+                g.edge(str(i), str(c))
+
+        filename = g.render(filename='pedigree')
+        print("Pedigree drawn to", filename)
