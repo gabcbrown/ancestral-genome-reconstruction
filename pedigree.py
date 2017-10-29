@@ -3,6 +3,7 @@
 from random import choice, uniform
 from copy import deepcopy
 import graphviz as gv
+import logging
 
 class Individual():
 
@@ -14,6 +15,9 @@ class Individual():
         self.children = children
         self.sex = sex
         self.genome = genome
+        #self.logger = logging.getLogger(__name__)
+
+
 
     def inherit(self, m, f):
         # FIXME
@@ -44,7 +48,7 @@ class Individual():
         mutation_rate = 0.0005 # between 10e-3 and 10e-4
         for g in gametes:
             if uniform(0,1.0) < mutation_rate: # Mutation!
-                print("Mutation!")
+                logging.info("Mutation!")
                 mutation_locus = choice(range(0,len(g)))
                 g[mutation_locus] = 0 if g[mutation_locus] == 1 else 1
 
@@ -100,5 +104,5 @@ class Pedigree():
             for c in self.members[i].children:
                 g.edge(str(i), str(c))
 
-        filename = g.render(filename='pedigree')
-        print("Pedigree drawn to", filename)
+        filename = g.render(filename='visualizePedigree')
+        logging.info("Pedigree drawn to", filename)

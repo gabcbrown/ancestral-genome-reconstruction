@@ -6,40 +6,15 @@ from random import choice
 import csv
 import pandas as pd
 import os
+import logging
+import sys
 
-# Simulate to n=100 individuals
-
-# Example usage:
-# Simulate the coalescent for a sample size of 5 and effective population of
-# 1000.
-# tree_sequence = msprime.simulate(sample_size=5, Ne=1000, length=1,
-#                                  recombination_rate=2e-8, mutation_rate=2e-8)
-# tree = next(tree_sequence.trees())
-# The function simulate() takes two parameters: base length of the simulated
-# sequence and the recombination rate.
-
-# Can configure the population, with initial size, growth rate, sample size
-
-# Can simulate demographic events
-
-# Parallelization is possible with some effort
-
-# This is an object of type msprime.trees.SparseTree
-#tree = next(tree_sequence.trees())
-#tree.draw('foo.svg')
-
-# Population sizes are assumed to be diploid
-# This is an object of type TreeSequence, some useful methods/attributes
-# breakpoints() - returns the breakpoints
-# get_num_mutations()
-# get_num_nodes()
-# get_sample
+#logging.basicConfig(level=logging.DEBUG)
 
 # These are good defaults for humans. Just change the sample size.
 # This is an object of type msprime.trees.TreeSequence
 tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=5e3,
     recombination_rate=2e-8, mutation_rate=2e-8)
-
 
 # Transform msprime population sample from list of individual values for each
 # SNP site to list of SNPS for each individual.
@@ -49,17 +24,6 @@ for variant in tree_sequence.variants(): # variants are essentially SNPs
 
 genomeSample = [list(individual) for individual in zip(*SNPSample)]
 genomeSample = [g[:10] for g in genomeSample] # Limit the genome size to 10 SNPs
-
-'''
-# Simple pedigree
-a = Individual(genome=[genomeSample[0],genomeSample[1]])
-b = Individual(genome=[genomeSample[2],genomeSample[3]])
-c = Individual(mother=a, father=b)
-
-c.inherit()
-print("Genome A:", a.genome)
-print("Genome B:", b.genome)
-print("Genome C:", c.genome)'''
 
 # Read in 51 person Amish subpedigree.
 with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as f:
@@ -90,7 +54,7 @@ for i in father_missing['ID'].tolist():
     data.loc[data["ID"] == i, 'FATHER'] = fatherID
 
 # Add known individuals to the pedigree
-print(data)
+logging.info(data)
 for row in data.itertuples():
     ID, fatherID, motherID, sex = row[1:5]
 
@@ -119,17 +83,21 @@ for row in data.itertuples():
 
 
 # Check that everything is running smoothly
-print("Ancestors:", len(pedigree.ancestors))
-print("Roots:", len(pedigree.roots))
-print("All members:", len(pedigree.members))
+logging.info("Ancestors: {}".format(len(pedigree.ancestors)))
+logging.info("Roots: {}".format(len(pedigree.roots)))
+logging.info("All members: {}".format(len(pedigree.members)))
 pedigree.draw_structure()
 
 # Inherit down the tree
 pedigree.inherit()
 
 for m in pedigree.members:
-    print(pedigree.members[m].genome)
+    logging.info(pedigree.members[m].genome)
 
-# TODO:
-# Inherit down the tree
-# Add mutation.
+#TODO:
+# Rules of inheritance
+# Explicitly model each generation (one generation for now)
+# Finding recombination breakpoints
+# Choosing most likely haplotype
+# Look up Identity by Descent
+# https://www.ncbi.nlm.nih.gov/pubmed/?term=Li%20X%5BAuthor%5D&cauthor=true&cauthor_uid=25519372
