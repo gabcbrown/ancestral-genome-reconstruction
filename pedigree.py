@@ -15,6 +15,7 @@ class Individual():
         self.children = children
         self.sex = sex
         self.genome = genome
+        self.haplotypes = []
         #self.logger = logging.getLogger(__name__)
 
 
@@ -64,6 +65,18 @@ class Pedigree():
         self.members = {}
         self.roots = {}
         self.ancestors = {}
+        self.haplotypes = {}
+
+    def _add_haplotype(self, member):
+        for chromosome in member.genome:
+            c = tuple(chromosome)
+            if c in self.haplotypes:
+                # We've already given a name to this haplotype
+                haplotype = self.haplotypes[c]
+                member.haplotypes.append(haplotype)
+            else:
+                # Name this new haplotype
+                self.haplotypes[c] = len(self.haplotypes) + 1
 
     def add_member(self, new_member, root=False, ancestor=False):
         self.members[new_member.id] = new_member
@@ -71,6 +84,7 @@ class Pedigree():
             self.roots[new_member.id] = new_member
         elif ancestor == True:
             self.ancestors[new_member.id] = new_member
+            self._add_haplotype(new_member)
 
     def get_member(self, id):
         try:
@@ -92,6 +106,7 @@ class Pedigree():
             c_id = children.pop(0)
             c = self.members[c_id]
             c.inherit(self.members[c.mother], self.members[c.father])
+            self._add_haplotype(c)
             children += c.children
 
 
@@ -105,4 +120,4 @@ class Pedigree():
                 g.edge(str(i), str(c))
 
         filename = g.render(filename='visualizePedigree')
-        logging.info("Pedigree drawn to", filename)
+        logging.info("Pedigree drawn to {}".format(filename))

@@ -9,7 +9,7 @@ import os
 import logging
 import sys
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 # These are good defaults for humans. Just change the sample size.
 # This is an object of type msprime.trees.TreeSequence
@@ -83,16 +83,21 @@ for row in data.itertuples():
 
 
 # Check that everything is running smoothly
-logging.info("Ancestors: {}".format(len(pedigree.ancestors)))
-logging.info("Roots: {}".format(len(pedigree.roots)))
-logging.info("All members: {}".format(len(pedigree.members)))
+logging.info("Number of ancestors: {}".format(len(pedigree.ancestors)))
+logging.info("Number of roots: {}".format(len(pedigree.roots)))
+logging.info("Total number of members: {}".format(len(pedigree.members)))
 pedigree.draw_structure()
 
 # Inherit down the tree
 pedigree.inherit()
 
+# Check the genomes
 for m in pedigree.members:
     logging.info(pedigree.members[m].genome)
+
+# Check the haplotypes:
+for h, name in pedigree.haplotypes.items():
+    logging.info("Haplotype {}: {}".format(name, h))
 
 #TODO:
 # Rules of inheritance
