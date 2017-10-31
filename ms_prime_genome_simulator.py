@@ -99,6 +99,20 @@ for m in pedigree.members:
 for h, name in pedigree.haplotypes.items():
     logging.info("Haplotype {}: {}".format(name, h))
 
+breakpoint_indices = []
+haplotypes = list(pedigree.haplotypes.keys())
+for i in range(0, len(haplotypes[0])-1):
+    for j in range(i + 1, len(haplotypes[0])):
+        seen = set()
+        for m in haplotypes:
+            seen.add((m[i], m[j]))
+
+        if seen == set([(0, 0), (0, 1), (1, 0), (1,1)]):
+            print("Recombination breakpoint between SNPs {} and {}:".format(i, j))
+            breakpoint_indices.append((i, j))
+
+
+# cuda
 #TODO:
 # Rules of inheritance
 # Explicitly model each generation (one generation for now)
