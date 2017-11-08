@@ -9,8 +9,7 @@ import os
 import logging
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
-
+logging.basicConfig(level=logging.DEBUG, filename='sample_output.log')
 # These are good defaults for humans. Just change the sample size.
 # This is an object of type msprime.trees.TreeSequence
 tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=5e3,
@@ -108,12 +107,18 @@ for i in range(0, len(haplotypes[0])-1):
             seen.add((m[i], m[j]))
 
         if seen == set([(0, 0), (0, 1), (1, 0), (1,1)]):
-            print("Recombination breakpoint between SNPs {} and {}:".format(i, j))
+            logging.info("Recombination breakpoint between SNPs {} and {}:".format(i, j))
             breakpoint_indices.append((i, j))
 
 
 # cuda
 #TODO:
+# Can we identify regions of the chromosomes that have been passed down from these two individuals to affected individuals in the pedigree
+# Phased with ShapeIt
+# LD prune
+# Valid assumption that all roots come from the same amish population
+# How big was the European Amish population that these root individual came from
+# LD structure of Amish populations are very similar to the European population
 # Rules of inheritance
 # Explicitly model each generation (one generation for now)
 # Finding recombination breakpoints
