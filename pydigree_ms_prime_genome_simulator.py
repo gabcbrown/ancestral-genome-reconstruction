@@ -27,7 +27,29 @@ genomeSample = [g[:10] for g in genomeSample] # Limit the genome size to 10 SNPs
 
 # Read in 51 person Amish subpedigree.
 filename = "amish_pedigree/amish_pedigree_with_ancestors.csv"
-ped = pydigree.io.read_ped(filename)
+ped = pydigree.io.read_ped(filename) # PedigreeCollection object
+ped1 = ped['1'] # Pedigree object
+ped1.inbreeding('740') # There are some good fns you can call on ped1.
+inds = ped1.individuals # gets all individuals
+ind1 = inds[0]
+print(ind1)
+print(type(ind1))
+print(ind1.is_founder()) # Useful check to see if an individual is a founder
+print(ind1.has_genotypes())
+chrom1 = pydigree.ChromosomeTemplate()
+ped1.add_chromosome(chrom1) # add a chromosome to the population
+print(ped1.chromosome_count())
+
+# Assign founders genomes from MS_Prime data.
+# need to setup gene pool population.pool. This is what founders are pulled from.
+# Figure out what's going on with pools and chromosomes: https://github.com/jameshicks/pydigree/blob/bde42786f81b885e797ee6f370f86489dedb053a/pydigree/simulation/chromosomepool.py
+# Then use individual.get_genotyoes()
+
+# Populate down the tree
+# Function for recombination:
+# https://github.com/jameshicks/pydigree/blob/master/pydigree/recombination.py
+
+
 '''
 # Construct the pedigree
 pedigree = Pedigree()
