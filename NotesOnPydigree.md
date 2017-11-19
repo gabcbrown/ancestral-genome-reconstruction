@@ -43,6 +43,10 @@ some population-wide classes and organization. Start by giving the Pedigree
 population the number of chromosomes it needs. In this case we only need one, so
 we will write:
 `chrom1 = pydigree.ChromosomeTemplate()
+We want the chromosome to keep track of SNPs output by an MSPrime simulation. So
+we iterate through the SNP locations and add them to the ChromosomeTemplate:
+`for snp_location in snp_locations:
+    chrom1.add_genotype(map_position=snp_location)`:
 ped1.add_chromosome(chrom1)`
 
 `ped1` will store the chromosomes you give it in a `ChromosomeSet` object. (If
@@ -50,11 +54,11 @@ you want to see where in the code this happens, Pedigree inherits from
 Population, and Population implements this organization.) You can easily check how many chromosomes a population currently has using
 `ped1.chromosome_count()`.
 
-Individuals store the actual values of the genomes whose structure (SNP location)
-is specified by the ChromosomeSet. Normally, Pydigree has its own simulation
-methods that setup the `ChromosomePool` object that Pedigree uses to set all the
-individual genomes. But We want to use the output of an MSPrime simulation
-`genomeSample` instead, so the next step is a bit of a hack.
+Individuals store the values of the genotypes whose structure (SNP location)
+is specified by the ChromosomeSet. Normally, Pydigree sets up a `ChromosomePool`
+object with its own simulation methods in order to populate individual genotypes.
+But we want to use the output of an MSPrime simulation (`genomeSample`) instead,
+so the next step is a bit of a hack.
 
 We start by initializing a ChromosomePool object from the population's
 ChromosomeSet:
@@ -63,7 +67,7 @@ ChromosomeSet:
 Now, we want to set the ChromosomePool's `pool` attribute to be our MSPrime
 data. The `pool` attribute expects a list with the following structure:
 `[[Chromosome 1 Pool], [Chromosome 2 Pool], ... , [Chromosome N Pool]]`
-Where [Chromosome i Pool] has the structure `[[Haplotype 1], [Haplotype 2], ...
+Where `[Chromosome i Pool]` has the structure `[[Haplotype 1], [Haplotype 2], ...
 , [Haplotype M]]` of the possible haplotypes for the set of SNPs specified in
 ChromosomeTemplate. Since we only have one chromosome in this situation, this
 is just
