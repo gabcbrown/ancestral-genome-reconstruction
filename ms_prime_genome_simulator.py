@@ -1,40 +1,94 @@
 import msprime
 from pprint import pprint
 import numpy
-from pedigree import Individual, Pedigree
+#from pedigree import Individual, Pedigree
 from random import choice
 import csv
 import pandas as pd
 import os
 import logging
 import sys
+import pydigree
+from  pydigree.simulation.chromosomepool import ChromosomePool
 
-logging.basicConfig(level=logging.DEBUG, filename='sample_output.log')
-# These are good defaults for humans. Just change the sample size.
-# This is an object of type msprime.trees.TreeSequence
+# Setup logging
+logging.basicConfig(level=logging.DEBUG, filename='output.log')
+
+# Run MSPrime simulation of population growth and evolution.
+# The parameters here are good defaults for humans.
+# To change the number of genotypes output, just change the sample size.
+# `tree_sequence` is an object of type msprime.trees.TreeSequence.
 tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=5e3,
     recombination_rate=2e-8, mutation_rate=2e-8)
+print("Simulated {} mutations".format(tree_sequence.get_num_mutations()))
 
-# Transform msprime population sample from list of individual values for each
+# Transform MSPrime population sample from list of individual values for each
 # SNP site to list of SNPS for each individual.
-SNPSample = []
+snp_sample = []
+snp_locations = []
 for variant in tree_sequence.variants(): # variants are essentially SNPs
-    SNPSample.append(variant.genotypes.tolist())
+    snp_sample.append(variant.genotypes.tolist())
+    snp_locations.append(variant.position)
+genomeSample = [list(individual) for individual in zip(*snp_sample)]
 
-genomeSample = [list(individual) for individual in zip(*SNPSample)]
-genomeSample = [g[:10] for g in genomeSample] # Limit the genome size to 10 SNPs
+# Read in 51 person Amish subpedigree to Pydigree pedigree object.
+filename = "amish_pedigree/amish_pedigree_with_ancestors.csv"
+ped = pydigree.io.read_ped(filename) # PedigreeCollection object
+ped1 = ped['1'] # Pedigree object
 
-# Read in 51 person Amish subpedigree.
-with open(os.path.join(os.getcwd(),"amish_pedigree/amish_pedigree.csv"),'r') as f:
-    data = pd.read_csv(f)
+# Create Pydigree Chromosome Template to store simulated MSPrime data and
+# associate with the pedigree object.
+# TODO: How does MSPrime store chromosome number?
+chrom1 = pydigree.ChromosomeTemplate() # Create template
+for snp_location in snp_locations: # Fill in with simulated data
+    chrom1.add_genotype(map_position=snp_location)
+ped1.add_chromosome(chrom1) # Add to the population
+print(ped1.chromosomes.chroms[0].genetic_map) # Comfirm that it worked
 
+# Chromosome pool?
+pool = ChromosomePool(chromosomes=ped1.chromosomes)
+#print(pool.pool)
+pool.pool = [genomeSample]
+#print(pool.pool)
+ped1.pool = pool
+#print(pool.chromosomes)
+#print(pool.chromosome(0))
+#print(pool.get_genotype_set())
+#print(ped1.pool.pool)
+ped1.get_founder_genotypes() # Populate founders genotypes from pool
+ped1.get_genotypes() # Populate rest of the trees genotypes from inheritance
+for i in ped1.individuals:
+    print(i.genotypes)# Populate founder genotypes from chromosome pool.
+#for f, genome in zip(ped1.founders(), genomeSample):
+#    for location, g in zip(genome, snp_locations):
+#        f.set_genotype(location, g)
+
+
+#TODO:
+# - Prediction
+# -- SGSAnalysis Class, chromwide_ibd method
+
+#TODO: This file should describe the format of a "template" that chromosome
+# template wants: https://github.com/jameshicks/pydigree/blob/bde42786f81b885e797ee6f370f86489dedb053a/pydigree/io/genomesimla.py
+# Assign founders genomes from MS_Prime data.
+# need to setup gene pool population.pool. This is what founders are pulled from.
+# Figure out what's going on with pools and chromosomes: https://github.com/jameshicks/pydigree/blob/bde42786f81b885e797ee6f370f86489dedb053a/pydigree/simulation/chromosomepool.py
+# Then use individual.get_genotyoes()
+
+# Populate down the tree
+# Function for recombination:
+# https://github.com/jameshicks/pydigree/blob/master/pydigree/recombination.py
+
+
+'''
 # Construct the pedigree
 pedigree = Pedigree()
 
 # Find missing ancestors and replace them with new Individual IDs
 mother_missing = data.query("MOTHER not in ID")
 father_missing = data.query("FATHER not in ID")
-
+print(mother_missing)
+print(father_missing)
 counter = 0
 for i in mother_missing['ID'].tolist():
     motherID = "A" + str(counter)
@@ -63,12 +117,6 @@ for row in data.itertuples():
         c, f, m = foo[1:4]
         if f == ID or m == ID:
             children.append(c)
-
-    '''if sex == 2:
-        children = data.loc[data["MOTHER"] == i, 'ID'].tolist()
-    elif sex == 1:
-        children = data.loc[data["FATHER"] == i, 'ID'].tolist()
-    '''
 
     member = Individual(id=ID, mother=motherID,
                         father=fatherID,
@@ -109,7 +157,7 @@ for i in range(0, len(haplotypes[0])-1):
         if seen == set([(0, 0), (0, 1), (1, 0), (1,1)]):
             logging.info("Recombination breakpoint between SNPs {} and {}:".format(i, j))
             breakpoint_indices.append((i, j))
-
+'''
 
 # cuda
 #TODO:
