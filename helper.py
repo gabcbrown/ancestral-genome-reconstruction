@@ -5,6 +5,19 @@ from copy import deepcopy
 import graphviz as gv
 import logging
 
+
+def visualize(pedigree):
+        # A nice tutorial on gv: http://matthiaseisen.com/articles/graphviz/
+        g = gv.Digraph('pedigree')
+        for i in pedigree.individuals:
+            g.node(str(i.label)) #Otherwise it throws an error
+        for i in pedigree.individuals:
+            for c in i.children:
+                g.edge(str(i.label), str(c.label))
+
+        filename = g.render(filename='visualizePedigree')
+        logging.info("Pedigree drawn to {}".format(filename))
+
 class Individual():
 
     def __init__(self, id=None, mother=None, father=None, children=[], sex=None,

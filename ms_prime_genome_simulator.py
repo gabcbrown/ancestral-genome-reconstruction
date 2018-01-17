@@ -11,7 +11,7 @@ import pydigree
 from  pydigree.simulation.chromosomepool import ChromosomePool
 from pydigree.sgs import SGSAnalysis
 from pydigree.io.plink import write_plink
-
+from helper import visualize
 # Setup logging
 logging.basicConfig(level=logging.DEBUG, filename='output.log')
 
@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.DEBUG, filename='output.log')
 # To change the number of genotypes output, just change the sample size.
 # `tree_sequence` is an object of type msprime.trees.TreeSequence.
 # Chromosome 4 is length=186e6
-tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=100000,
+tree_sequence = msprime.simulate(sample_size=100, Ne=10000, length=1000,
     recombination_rate=2e-8, mutation_rate=2e-8)
 print("Simulated {} mutations".format(tree_sequence.get_num_mutations()))
 
@@ -58,10 +58,7 @@ ped1.pool = pool
 ped1.get_founder_genotypes() # Populate founders genotypes from pool
 ped1.get_genotypes() # Populate rest of the trees genotypes from inheritance
 
-write_plink(ped, "small_test_plink_output", mapfile=True)
-# Try to get SGS working
-#print(pydigree.ibs())
-#foo = SGSAnalysis()
-#foo.direct_to_disk("MaybeOutput.txt", ped1)
-# 3:49
+#visualize(ped1)
+#write_plink(ped, "small_test_plink_output", mapfile=True)
+
 #TODO: Line 58 fails if no mutations were generated
