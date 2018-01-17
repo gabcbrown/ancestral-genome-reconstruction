@@ -10,7 +10,9 @@ import sys
 import pydigree
 from  pydigree.simulation.chromosomepool import ChromosomePool
 from pydigree.sgs import SGSAnalysis
+from pydigree.ibs import get_ibs_states
 from pydigree.io.plink import write_plink
+from pydigree.genotypes import alleles
 from helper import visualize
 # Setup logging
 logging.basicConfig(level=logging.DEBUG, filename='output.log')
@@ -33,7 +35,10 @@ snp_locations = []
 for variant in tree_sequence.variants(): # variants are essentially SNPs
     snp_sample.append(variant.genotypes.tolist())
     snp_locations.append(variant.position)
-genomeSample = [list(individual) for individual in zip(*snp_sample)]
+# One instance of the Alleles object corresponds to the haploid alleles of
+# one individual. (i.e. the alleles of one of their chromosome copies.)
+genomeSample = [alleles.Alleles(individual) for individual in zip(*snp_sample)]
+
 
 # Read in 51 person Amish subpedigree to Pydigree pedigree object.
 filename = "amish_pedigree/amish_pedigree_with_ancestors.csv"
@@ -58,7 +63,8 @@ ped1.pool = pool
 ped1.get_founder_genotypes() # Populate founders genotypes from pool
 ped1.get_genotypes() # Populate rest of the trees genotypes from inheritance
 
+
 #visualize(ped1)
-#write_plink(ped, "small_test_plink_output", mapfile=True)
+write_plink(ped, "latest", mapfile=True)
 
 #TODO: Line 58 fails if no mutations were generated
