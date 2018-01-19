@@ -10,10 +10,11 @@ from pydigree.genotypes import alleles
 
 class Simulation():
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         self.pedigrees = None # Because otherwise we can't output Plink
         self.pedigree = None
         self.genomePool = None
+        self.verbose = verbose
 
 
     def addPedigree(self, fileName, pedigreeName):
@@ -28,16 +29,22 @@ class Simulation():
 
 
     def runSimulation(self, sampleSize=100, chromLength=5000):
+        if self.verbose:
+            print("Starting simulation")
+
         # Run MSPrime simulation of population growth and evolution.
         # The parameters here are good defaults for humans.
         # To change the number of genotypes output, just change the sample size.
         # `tree_sequence` is an object of type msprime.trees.TreeSequence.
         # Chromosome 4 is length=186e6
-        tree_sequence = msprime.simulate(sample_size=sampleSize, Ne=10000,
-            length=chromLength, recombination_rate=2e-8, mutation_rate=2e-8)
+        numMutations = 0
+        while numMutations == 0:
+            tree_sequence = msprime.simulate(sample_size=sampleSize, Ne=10000,
+                length=chromLength, recombination_rate=2e-8, mutation_rate=2e-8)
+            numMutations = tree_sequence.get_num_mutations()
 
-        # TODO: Switch to std io
-        print("Simulated {} mutations".format(tree_sequence.get_num_mutations()))
+        if self.verbose:
+            print("Simulated {} mutations".format(numMutations))
 
         # Transform MSPrime population sample from list of individual values for each
         # SNP site to list of SNPS for each individual.
@@ -73,7 +80,14 @@ class Simulation():
 
 
     def writePedigreeToPlink(self, fileName):
+        if not self.pedigrees:
+            raise ValueError("No pedigree defined, cannot write to Plink file.")
+
         write_plink(self.pedigrees, fileName, mapfile=True)
+
+        if self.verbose:
+            print("Plink files written to {}.map and {}.ped".format(fileName,
+                                                                    fileName))
 
 
     def visualizePedigree(self, fileName):
@@ -89,4 +103,6 @@ class Simulation():
                 g.edge(str(i.label), str(c.label))
 
         filename = g.render(filename=fileName)
-        #TODO: Output that a file is being written
+
+        if self.verbose:
+            print("Pedigree visualization written to {}.pdf".format(fileName))
