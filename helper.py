@@ -6,6 +6,7 @@ from pydigree.sgs import SGSAnalysis
 from pydigree.ibs import get_ibs_states
 from pydigree.io.plink import write_plink
 from pydigree.genotypes import alleles
+import pandas as pd
 
 
 class Simulation():
@@ -20,12 +21,7 @@ class Simulation():
     def addPedigree(self, fileName, pedigreeName):
         # Read in 51 person Amish subpedigree to Pydigree pedigree object.
         self.pedigrees = pydigree.io.read_ped(fileName) # PedigreeCollection object
-        self.pedigree =self.pedigrees[pedigreeName] # Pedigree object
-
-
-    def _validatePedigreeFile(self, filename):
-        #TODO: Implement and add call in addPedigree
-        raise NotImplementedError
+        self.pedigree = self.pedigrees[pedigreeName] # Pedigree object
 
 
     def runSimulation(self, sampleSize=100, chromLength=5000):
