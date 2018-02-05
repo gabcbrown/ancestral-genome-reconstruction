@@ -16,7 +16,8 @@ This code uses pipenv to install and manage python dependencies: https://pypi.py
 
 To install, run `pip install pipenv` or `brew install pipenv`.
 
-To install all python dependencies, run `pipenv install requirements.txt`.
+To start a pipenv environment and install all python dependencies, run
+`pipenv install`, which will use the Pipenv file in the repository.
 
 (Optional) To install GERMLINE, follow the instructions at: http://www.cs.columbia.edu/~gusev/germline/
 

@@ -5,8 +5,8 @@ import argparse
 def main():
     args = getCommandLineArguments()
     sim = Simulation(verbose=args.verbose)
-    sim.addPedigree(args.pedigree_file, args.pedigree_name)
-    sim.runSimulation(chromLength=int(args.chrom_length))
+    sim.addPedigree(args.pedigree_file, args.family_id)
+    sim.runSimulation(chromLength=int(args.length))
     sim.populateGenomes()
     sim.writePedigreeToPlink(args.output)
     sim.visualizePedigree(args.output)
@@ -30,8 +30,8 @@ def getCommandLineArguments():
     args = parser.parse_args()
     if not args.output: #TODO see if there's a better way to default
         args.output = "output"
-    if not args.chrom_length:
-        args.chrom_length = 5000
+    if not args.length:
+        args.length = 5000
     return args
 
 
