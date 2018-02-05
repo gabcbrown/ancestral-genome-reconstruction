@@ -6,7 +6,6 @@ def main():
     args = getCommandLineArguments()
     sim = Simulation(verbose=args.verbose)
     sim.addPedigree(args.pedigree_file, args.pedigree_name)
-    print(args.chrom_length)
     sim.runSimulation(chromLength=int(args.chrom_length))
     sim.populateGenomes()
     sim.writePedigreeToPlink(args.output)
