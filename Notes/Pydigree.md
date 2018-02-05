@@ -81,15 +81,8 @@ And populate the rest of the individual's genotypes by inheriting from their
 parent's genotypes:
 `ped1.get_genotypes()`
 
-
-
 ________________________________________________________________________________
-
-
-
- Individual - represent the genotype and phenotype of an individual.
-  inputs:
-  -
+Individual - represent the genotype and phenotype of an individual.
 
 Organization of individuals:
 Population - represent a group of unrelated individuals.
@@ -98,16 +91,13 @@ Pedigree - represent a group of related individuals with known pedigree structur
 
 PedigreeCollection - represent a collection of pedigrees.
 
-
 Organization of genetic information:
 Alleles - represent a set of alleles for a haploid chromosome
 
 SparseAlleles - a memory-efficient way to store alleles, like above.
 
-
 Simulation:
-There's a lot of simulation stuff for populations, pedigrees, and phenotypes.
-ConstrainedMendelianSimulation???
+There are a lot of simulation tools for populations, pedigrees, and phenotypes.
 
 Analysis:
 IBD -> SGSAnalysis
