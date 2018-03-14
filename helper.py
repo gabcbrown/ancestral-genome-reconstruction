@@ -19,7 +19,7 @@ class Simulation():
 
 
     def addPedigree(self, fileName, pedigreeName):
-        # Read in 51 person Amish subpedigree to Pydigree pedigree object.
+        # Read in pedigree to Pydigree pedigree object.
         self.pedigrees = pydigree.io.read_ped(fileName) # PedigreeCollection object
         self.pedigree = self.pedigrees[pedigreeName] # Pedigree object
 
@@ -58,19 +58,18 @@ class Simulation():
     def populateGenomes(self):
         # Create Pydigree Chromosome Template to store simulated MSPrime data and
         # associate with the pedigree object.
-        # TODO: How does MSPrime store chromosome number?
         chrom1 = pydigree.ChromosomeTemplate() # Create template
         for snp_location in self.snpLocations: # Fill in with simulated data
             chrom1.add_genotype(map_position=snp_location)
         self.pedigree.add_chromosome(chrom1) # Add to the population
-        #print(self.pedigree.chromosomes.chroms[0].genetic_map) # Comfirm that it worked
+        #print(self.pedigree.chromosomes.chroms[0].genetic_map) # Uncomment to check population
 
-        #TODO: This fails if no mutations were generated
         pool = ChromosomePool(chromosomes=self.pedigree.chromosomes)
         pool.pool = [self.genomePool]
         self.pedigree.pool = pool
-        # To look at the first chromosome in the pool: pool.chromosome(0)
-        # To access values of pedigree pool: self.pedigree.pool.pool
+        #print(pool.chromosome(0)) # Uncomment to check first chromosome in pool
+        #print(self.pedigree.pool.pool) # Uncomment to check values of pedigree pool
+        
         self.pedigree.get_founder_genotypes() # Populate founders genotypes from pool
         self.pedigree.get_genotypes() # Populate rest of the trees genotypes from inheritance
 
@@ -79,7 +78,7 @@ class Simulation():
         if not self.pedigrees:
             raise ValueError("No pedigree defined, cannot write to Plink file.")
 
-        write_plink(self.pedigrees, fileName, mapfile=True)
+        write_plink(self.pedigrees, fileName, mapfile=True) 
 
         if self.verbose:
             print("Plink files written to {}.map and {}.ped".format(fileName,
@@ -93,7 +92,7 @@ class Simulation():
         # A nice tutorial on gv: http://matthiaseisen.com/articles/graphviz/
         g = gv.Digraph('pedigree')
         for i in self.pedigree.individuals:
-            g.node(str(i.label)) #Otherwise it throws an error
+            g.node(str(i.label)) # Otherwise it throws an error
         for i in self.pedigree.individuals:
             for c in i.children:
                 g.edge(str(i.label), str(c.label))
